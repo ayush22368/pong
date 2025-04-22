@@ -22,9 +22,8 @@
             animation: gradientBG 15s ease infinite;
             font-family: 'Arial', sans-serif;
             color: white;
-            overflow: hidden; /* Prevent scrollbars caused by game area */
-            /* Improve touch responsiveness on some browsers */
-            touch-action: none; 
+            overflow: hidden;
+            touch-action: none; /* Improve touch responsiveness */
         }
 
         /* Background Animation */
@@ -37,14 +36,14 @@
         /* Game Area */
         #gameArea {
             position: relative;
-            width: 90vw; /* Use viewport width */
-            max-width: 700px; /* Max width for large screens */
-            height: 60vh; /* Use viewport height */
-            max-height: 450px; /* Max height */
+            width: 90vw;
+            max-width: 700px;
+            height: 60vh;
+            max-height: 450px;
             border: 3px solid rgba(255, 255, 255, 0.7);
-            background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent black */
-            overflow: hidden; /* Keep elements inside */
-            cursor: none; /* Hide default cursor over game */
+            background-color: rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            cursor: none;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             border-radius: 10px;
         }
@@ -56,7 +55,7 @@
             height: 80px; /* Corresponds to PADDLE_HEIGHT in JS */
             background-color: white;
             border-radius: 3px;
-            top: calc(50% - 40px); /* Vertically center initially */
+            top: calc(50% - 40px);
         }
 
         #paddleLeft { /* AI Paddle */
@@ -66,108 +65,81 @@
         }
 
         #paddleRight { /* Player Paddle */
-            right: 10px; /* Default position */
+            /* Default right position, JS adjusts if touch scrollbar is shown */
+            right: 10px;
             background-color: #ffffff;
             box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
         }
 
-        /* --- Touch Scrollbar Styles (Initially Hidden) --- */
+        /* --- Touch Scrollbar Styles (Subtle & Improved) --- */
         #touchScrollTrack {
             position: absolute;
-            right: 1px; /* Position inside the border on the right */
-            top: 0;
-            width: 25px; /* Width of the touchable track */
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.1); /* Faint track */
-            border-radius: 5px;
-            display: none; /* Hidden by default, shown via JS on touch devices */
-            z-index: 5; /* Above game background, below message */
+            right: 2px; /* Closer to edge */
+            top: 5px; /* Small gap top/bottom */
+            bottom: 5px;
+            width: 18px; /* Narrower track */
+            background-color: rgba(255, 255, 255, 0.08); /* Very faint track */
+            border-radius: 9px;
+            display: none; /* Hidden by default, shown via JS */
+            z-index: 5;
         }
 
         #touchScrollThumb {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            width: 18px; /* Slightly narrower than track */
-            height: 60px; /* Fixed height for the thumb */
-            background-color: rgba(255, 255, 255, 0.6); /* More visible thumb */
-            border-radius: 8px;
-            top: calc(50% - 30px); /* Initial position (matches paddle) */
-            cursor: ns-resize; /* Indicate vertical movement */
+            width: 12px; /* Even narrower thumb */
+            height: 60px; /* Fixed thumb height */
+            background-color: rgba(255, 255, 255, 0.45); /* Semi-transparent white thumb */
+            border-radius: 6px;
+            top: calc(50% - 30px); /* Initial position */
         }
-        /* ---------------------------------------------- */
+
+        /* Only show track if body has .touch-device class */
+        body.touch-device #touchScrollTrack {
+            display: block;
+        }
+        /* ---------------------------------------------------- */
 
 
         /* Ball */
         #ball {
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            background-color: #ffcc00;
-            border-radius: 50%;
+            position: absolute; width: 15px; height: 15px;
+            background-color: #ffcc00; border-radius: 50%;
             box-shadow: 0 0 8px rgba(255, 204, 0, 0.9);
-            top: calc(50% - 7.5px);
-            left: calc(50% - 7.5px);
+            top: calc(50% - 7.5px); left: calc(50% - 7.5px);
         }
 
         /* Score Display */
         .score {
-            position: absolute;
-            top: 20px;
-            font-size: 2.5em;
-            font-weight: bold;
+            position: absolute; top: 20px;
+            font-size: 2.5em; font-weight: bold;
             color: rgba(255, 255, 255, 0.8);
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             user-select: none;
-            transition: transform 0.2s ease-out, color 0.2s ease-out; /* Added color transition */
+            transition: transform 0.2s ease-out, color 0.2s ease-out;
         }
-        .score.flash {
-             transform: scale(1.2);
-             color: #ffdd44; /* Brighter yellow flash */
-        }
-
-
-        #scoreLeft {
-            left: 25%;
-            transform: translateX(-50%);
-        }
-
-        #scoreRight {
-            right: 25%;
-            transform: translateX(50%);
-        }
+        .score.flash { transform: scale(1.2); color: #ffdd44; }
+        #scoreLeft { left: 25%; transform: translateX(-50%); }
+        #scoreRight { right: 25%; transform: translateX(50%); }
 
         /* Center Line */
         #centerLine {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            width: 2px;
-            height: 100%;
-            background: repeating-linear-gradient(
-                transparent, transparent 5px,
-                rgba(255, 255, 255, 0.3) 5px, rgba(255, 255, 255, 0.3) 10px
-            );
+            position: absolute; top: 0; left: 50%;
+            width: 2px; height: 100%;
+            background: repeating-linear-gradient( transparent, transparent 5px, rgba(255, 255, 255, 0.3) 5px, rgba(255, 255, 255, 0.3) 10px );
             transform: translateX(-50%);
         }
 
         /* Message Overlay */
         #message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
+            position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 10px;
-            font-size: 1.4em;
-            text-align: center;
-            display: block;
-            z-index: 10; /* Above scrollbar */
-            cursor: pointer;
-            user-select: none;
-            line-height: 1.4;
+            background-color: rgba(0, 0, 0, 0.7); color: white;
+            padding: 20px 30px; border-radius: 10px;
+            font-size: 1.4em; text-align: center;
+            display: block; z-index: 10; cursor: pointer;
+            user-select: none; line-height: 1.4;
         }
     </style>
 </head>
@@ -175,17 +147,15 @@
 
     <div id="gameArea">
         <div id="centerLine"></div>
-        <div id="paddleLeft" class="paddle"></div>  <!-- AI Paddle -->
-        <div id="paddleRight" class="paddle"></div> <!-- Player Paddle -->
-
-        <!-- Mobile Touch Scrollbar -->
+        <div id="paddleLeft" class="paddle"></div>
+        <div id="paddleRight" class="paddle"></div>
+        <!-- Scrollbar HTML restored -->
         <div id="touchScrollTrack">
             <div id="touchScrollThumb"></div>
         </div>
-
         <div id="ball"></div>
-        <div id="scoreLeft" class="score">0</div>   <!-- AI Score -->
-        <div id="scoreRight" class="score">0</div>  <!-- Player Score -->
+        <div id="scoreLeft" class="score">0</div>
+        <div id="scoreRight" class="score">0</div>
         <div id="message">First 10 points wins!<br>Click or Tap to Play</div>
     </div>
 
@@ -198,304 +168,294 @@
         const scoreLeftDisplay = document.getElementById('scoreLeft');
         const scoreRightDisplay = document.getElementById('scoreRight');
         const message = document.getElementById('message');
-        // Touch scrollbar elements
+        // Scrollbar elements restored
         const touchScrollTrack = document.getElementById('touchScrollTrack');
         const touchScrollThumb = document.getElementById('touchScrollThumb');
 
-
         // --- Game Variables ---
-        let ballX, ballY;
-        let ballSpeedX, ballSpeedY;
+        let ballX, ballY, ballSpeedX, ballSpeedY;
         let paddleLeftY, paddleRightY;
-        let scoreLeft = 0;
-        let scoreRight = 0;
+        let scoreLeft = 0, scoreRight = 0;
         let gameRunning = false;
         let resetTimeoutId = null;
-        let isTouchDevice = false; // Flag for touch device
+        let isTouchDevice = false; // Flag restored
 
-        // --- Constants ---
-        const PADDLE_HEIGHT = paddleRight.offsetHeight;
-        const THUMB_HEIGHT = touchScrollThumb.offsetHeight; // Get thumb height for positioning
-        const BALL_SIZE = ball.offsetWidth;
-        const GAME_WIDTH = gameArea.offsetWidth;
-        const GAME_HEIGHT = gameArea.offsetHeight;
-        const PLAYER_PADDLE_SPEED = 6; // Direct mapping is smooth enough
+        // --- Constants (Initialized in initializeGameDimensions) ---
+        let PADDLE_HEIGHT;
+        let THUMB_HEIGHT; // Restored
+        let BALL_SIZE;
+        let GAME_WIDTH;
+        let GAME_HEIGHT;
+        const PLAYER_PADDLE_SPEED = 6;
         const AI_PADDLE_SPEED = 5.1;
         const WINNING_SCORE = 10;
-        const INITIAL_BALL_SPEED = 6.5;
-        const BALL_SPEED_INCREASE = 1.05;
+        // ***** BALL SPEED ADJUSTED *****
+        const INITIAL_BALL_SPEED = 5.5; // More manageable speed
+        const BALL_SPEED_INCREASE = 1.05; // Gentle increase
+        // *******************************
         const MAX_BALL_SPEED_X_FACTOR = 3.2;
         const MAX_BALL_SPEED_Y_FACTOR = 1.9;
         const POINT_RESET_DELAY = 1000;
+        const PADDLE_SCROLLBAR_GAP = 5; // Space between paddle and scrollbar
 
         // --- Functions ---
 
-        // Reset ball to center with random direction
         function resetBall() {
-            clearTimeout(resetTimeoutId);
-            resetTimeoutId = null;
+            clearTimeout(resetTimeoutId); resetTimeoutId = null;
+            if (!GAME_WIDTH) initializeGameDimensions(); if (!GAME_WIDTH) return;
+
             ballX = GAME_WIDTH / 2 - BALL_SIZE / 2;
             ballY = GAME_HEIGHT / 2 - BALL_SIZE / 2;
             let angle = Math.random() * Math.PI / 2 - Math.PI / 4;
             ballSpeedX = INITIAL_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
             ballSpeedY = INITIAL_BALL_SPEED * Math.sin(angle);
-             if (Math.abs(ballSpeedY) < 1.2) {
-                 ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 1.2;
+             if (Math.abs(ballSpeedY) < 1.0) { // Adjusted min vertical speed
+                 ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 1.0;
              }
-             if(!gameRunning) { // Position ball visually if game hasn't started loop
-                 ball.style.left = `${ballX}px`;
-                 ball.style.top = `${ballY}px`;
-             }
+             if(!gameRunning) { ball.style.left = `${ballX}px`; ball.style.top = `${ballY}px`; }
         }
 
-        // Function to be called after delay to start next round
         function startNextRound() {
-            resetBall();
-            gameRunning = true;
-            requestAnimationFrame(gameLoop);
+            resetBall(); gameRunning = true; requestAnimationFrame(gameLoop);
         }
 
-         // Function to flash the score
-         function flashScore(scoreElement) {
+        function flashScore(scoreElement) {
              scoreElement.classList.add('flash');
-             setTimeout(() => {
-                 scoreElement.classList.remove('flash');
-             }, 300);
-         }
+             setTimeout(() => { scoreElement.classList.remove('flash'); }, 300);
+        }
 
-
-        // Reset game state (for starting new game)
         function resetGame() {
-             clearTimeout(resetTimeoutId);
-             resetTimeoutId = null;
-            scoreLeft = 0;
-            scoreRight = 0;
-            scoreLeftDisplay.textContent = scoreLeft;
-            scoreRightDisplay.textContent = scoreRight;
-            // Reset paddle Y position *variable*
+             clearTimeout(resetTimeoutId); resetTimeoutId = null;
+             initializeGameDimensions(); if (!GAME_HEIGHT) return;
+
+            scoreLeft = 0; scoreRight = 0;
+            scoreLeftDisplay.textContent = scoreLeft; scoreRightDisplay.textContent = scoreRight;
             paddleLeftY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
             paddleRightY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
-            // Update visual positions
             paddleLeft.style.top = `${paddleLeftY}px`;
             paddleRight.style.top = `${paddleRightY}px`;
-            updateThumbPosition(); // Sync thumb position on reset
-
+            updateThumbPosition(); // Sync thumb on reset
             resetBall();
             message.style.display = 'none';
             gameRunning = true;
             requestAnimationFrame(gameLoop);
         }
 
-        // Function to update thumb position based on paddleRightY
+        // Function to update thumb position (Restored & Refined)
         function updateThumbPosition() {
-            if(isTouchDevice) {
-                // Calculate thumb top, clamped within track bounds
-                const thumbTop = Math.max(0, Math.min(paddleRightY, GAME_HEIGHT - THUMB_HEIGHT));
-                touchScrollThumb.style.top = `${thumbTop}px`;
+            if(isTouchDevice && THUMB_HEIGHT && GAME_HEIGHT && PADDLE_HEIGHT) {
+                 // Calculate available track space for the thumb
+                const trackInnerHeight = touchScrollTrack.offsetHeight - THUMB_HEIGHT;
+                 // Calculate paddle's relative position (0 to 1) in its movable range
+                const paddlePercent = paddleRightY / (GAME_HEIGHT - PADDLE_HEIGHT);
+                 // Calculate thumb top based on percentage, clamped within track bounds
+                const thumbTop = Math.max(0, Math.min(paddlePercent * trackInnerHeight, trackInnerHeight));
+
+                 touchScrollThumb.style.top = `${thumbTop}px`;
             }
         }
 
-
-        // Update game state each frame
         function gameLoop() {
             if (!gameRunning) return;
+            if (!GAME_HEIGHT) { initializeGameDimensions(); if (!GAME_HEIGHT) return; }
 
-            // 1. Move Ball
-            ballX += ballSpeedX;
-            ballY += ballSpeedY;
+            ballX += ballSpeedX; ballY += ballSpeedY;
 
-            // 2. Ball Collision Detection
+            // Wall Collision
             if (ballY <= 0 || ballY >= GAME_HEIGHT - BALL_SIZE) {
-                ballSpeedY *= -1;
-                ballY = Math.max(0, Math.min(ballY, GAME_HEIGHT - BALL_SIZE));
+                ballSpeedY *= -1; ballY = Math.max(0, Math.min(ballY, GAME_HEIGHT - BALL_SIZE));
                 ballSpeedX += (Math.random() - 0.5) * 0.1;
             }
 
             const maxHorizontalSpeed = INITIAL_BALL_SPEED * MAX_BALL_SPEED_X_FACTOR;
             const maxVerticalSpeed = INITIAL_BALL_SPEED * MAX_BALL_SPEED_Y_FACTOR;
 
-            // Paddle Collisions... (code unchanged)
+            // Paddle Collisions (Right paddle check accounts for scrollbar gap if present)
+            let rightPaddleEdge = isTouchDevice
+                ? GAME_WIDTH - paddleRight.offsetWidth - PADDLE_SCROLLBAR_GAP
+                : GAME_WIDTH - 10 - paddleRight.offsetWidth; // Use default gap if no scrollbar
+            let rightPaddleCollisionBuffer = rightPaddleEdge - BALL_SIZE * 1.5;
+
             if (ballX <= 20 + BALL_SIZE / 2 && ballX > 10 && ballY + BALL_SIZE > paddleLeftY && ballY < paddleLeftY + PADDLE_HEIGHT) {
-                ballX = 20 + BALL_SIZE / 2;
-                let nextSpeedX = ballSpeedX * -BALL_SPEED_INCREASE;
-                if(Math.abs(nextSpeedX) > maxHorizontalSpeed) { nextSpeedX = Math.sign(nextSpeedX) * maxHorizontalSpeed; }
-                ballSpeedX = nextSpeedX;
-                let deltaY = ballY + BALL_SIZE / 2 - (paddleLeftY + PADDLE_HEIGHT / 2);
-                ballSpeedY = deltaY * 0.16;
+                ballX = 20 + BALL_SIZE / 2; let nextSpeedX = ballSpeedX * -BALL_SPEED_INCREASE;
+                if(Math.abs(nextSpeedX) > maxHorizontalSpeed) { nextSpeedX = Math.sign(nextSpeedX) * maxHorizontalSpeed; } ballSpeedX = nextSpeedX;
+                let deltaY = ballY + BALL_SIZE / 2 - (paddleLeftY + PADDLE_HEIGHT / 2); ballSpeedY = deltaY * 0.16;
                 ballSpeedY = Math.max(-maxVerticalSpeed, Math.min(ballSpeedY, maxVerticalSpeed));
-            }
-            else if (ballX >= GAME_WIDTH - 20 - BALL_SIZE * 1.5 && ballX < GAME_WIDTH - 10 && ballY + BALL_SIZE > paddleRightY && ballY < paddleRightY + PADDLE_HEIGHT) {
-                ballX = GAME_WIDTH - 20 - BALL_SIZE * 1.5;
+            } else if (ballX >= rightPaddleCollisionBuffer && ballX < rightPaddleEdge && ballY + BALL_SIZE > paddleRightY && ballY < paddleRightY + PADDLE_HEIGHT) {
+                ballX = rightPaddleCollisionBuffer; // Adjust collision point
                 let nextSpeedX = ballSpeedX * -BALL_SPEED_INCREASE;
-                 if(Math.abs(nextSpeedX) > maxHorizontalSpeed) { nextSpeedX = Math.sign(nextSpeedX) * maxHorizontalSpeed; }
-                ballSpeedX = nextSpeedX;
-                let deltaY = ballY + BALL_SIZE / 2 - (paddleRightY + PADDLE_HEIGHT / 2);
-                ballSpeedY = deltaY * 0.16;
+                if(Math.abs(nextSpeedX) > maxHorizontalSpeed) { nextSpeedX = Math.sign(nextSpeedX) * maxHorizontalSpeed; } ballSpeedX = nextSpeedX;
+                let deltaY = ballY + BALL_SIZE / 2 - (paddleRightY + PADDLE_HEIGHT / 2); ballSpeedY = deltaY * 0.16;
                 ballSpeedY = Math.max(-maxVerticalSpeed, Math.min(ballSpeedY, maxVerticalSpeed));
             }
 
-             // Scoring... (code unchanged)
-             let pointScored = false;
-             let scorerElement = null;
-            if (ballX < 0) {
-                scoreRight++; scoreRightDisplay.textContent = scoreRight;
-                pointScored = true; scorerElement = scoreRightDisplay;
-            } else if (ballX > GAME_WIDTH) {
-                scoreLeft++; scoreLeftDisplay.textContent = scoreLeft;
-                pointScored = true; scorerElement = scoreLeftDisplay;
-            }
+            // Scoring
+             let pointScored = false; let scorerElement = null;
+             if (ballX < 0) { scoreRight++; scoreRightDisplay.textContent = scoreRight; pointScored = true; scorerElement = scoreRightDisplay; }
+             else if (ballX > GAME_WIDTH) { scoreLeft++; scoreLeftDisplay.textContent = scoreLeft; pointScored = true; scorerElement = scoreLeftDisplay; }
 
             if (pointScored) {
-                gameRunning = false;
-                flashScore(scorerElement);
-                if (!checkWin()) {
-                   resetTimeoutId = setTimeout(startNextRound, POINT_RESET_DELAY);
-                }
+                gameRunning = false; flashScore(scorerElement);
+                if (!checkWin()) { resetTimeoutId = setTimeout(startNextRound, POINT_RESET_DELAY); }
                 return;
             }
 
-            // 3. Move Paddles
-            // AI Paddle (Left)
+            // Move AI Paddle
             let targetPaddleLeftY = ballY - PADDLE_HEIGHT / 2;
             let dy = targetPaddleLeftY - paddleLeftY;
-            if (Math.abs(dy) > AI_PADDLE_SPEED) { paddleLeftY += Math.sign(dy) * AI_PADDLE_SPEED; }
-            else { paddleLeftY += dy; }
+            if (Math.abs(dy) > AI_PADDLE_SPEED) { paddleLeftY += Math.sign(dy) * AI_PADDLE_SPEED; } else { paddleLeftY += dy; }
             paddleLeftY = Math.max(0, Math.min(paddleLeftY, GAME_HEIGHT - PADDLE_HEIGHT));
 
-            // Player Paddle (Right) - Position updated by event listeners
+            // Update DOM Positions
+            ball.style.left = `${ballX}px`; ball.style.top = `${ballY}px`;
+            paddleLeft.style.top = `${paddleLeftY}px`; paddleRight.style.top = `${paddleRightY}px`;
+            updateThumbPosition(); // Keep thumb synced
 
-            // 4. Update Positions in DOM
-            ball.style.left = `${ballX}px`;
-            ball.style.top = `${ballY}px`;
-            paddleLeft.style.top = `${paddleLeftY}px`;
-            paddleRight.style.top = `${paddleRightY}px`;
-            updateThumbPosition(); // Keep thumb synced with paddle variable
-
-            // 5. Request Next Frame
-            if (gameRunning) {
-                requestAnimationFrame(gameLoop);
-            }
+            if (gameRunning) { requestAnimationFrame(gameLoop); }
         }
 
-         // Check for win condition - Returns true if game is over
         function checkWin() {
-            let gameOver = false;
-            if (scoreRight >= WINNING_SCORE) {
-                message.innerHTML = `You Win ${scoreRight} - ${scoreLeft}!<br>Click/Tap to Play Again`;
-                message.style.display = 'block';
-                gameOver = true;
-            } else if (scoreLeft >= WINNING_SCORE) {
-                message.innerHTML = `AI Wins ${scoreLeft} - ${scoreRight}!<br>Click/Tap to Play Again`;
-                message.style.display = 'block';
-                gameOver = true;
-            }
-             // Stop gameRunning if game is over
-             if (gameOver) {
-                 gameRunning = false;
-             }
+             let gameOver = false;
+             if (scoreRight >= WINNING_SCORE) { message.innerHTML = `You Win ${scoreRight} - ${scoreLeft}!<br>Click/Tap to Play Again`; message.style.display = 'block'; gameOver = true; gameRunning = false; }
+             else if (scoreLeft >= WINNING_SCORE) { message.innerHTML = `AI Wins ${scoreLeft} - ${scoreRight}!<br>Click/Tap to Play Again`; message.style.display = 'block'; gameOver = true; gameRunning = false; }
              return gameOver;
-        }
+         }
 
         // --- Event Listeners ---
 
-        // PC Mouse Control
         gameArea.addEventListener('mousemove', (e) => {
-             if(!isTouchDevice) { // Only use mouse if not a touch device (prevents conflicts)
-                let rect = gameArea.getBoundingClientRect();
-                let mouseY = e.clientY - rect.top;
+             if(!isTouchDevice) { // Primarily for non-touch, but harmless on touch
+                let rect = gameArea.getBoundingClientRect(); let mouseY = e.clientY - rect.top;
                 paddleRightY = mouseY - PADDLE_HEIGHT / 2;
-                paddleRightY = Math.max(0, Math.min(paddleRightY, GAME_HEIGHT - PADDLE_HEIGHT));
-                 // updateThumbPosition(); // Thumb not visible on PC, no need to update
+                if(GAME_HEIGHT && PADDLE_HEIGHT) { paddleRightY = Math.max(0, Math.min(paddleRightY, GAME_HEIGHT - PADDLE_HEIGHT)); }
              }
         });
 
-        // Mobile Touch Control (Dragging anywhere on Game Area)
         gameArea.addEventListener('touchmove', (e) => {
-            // Prevent default only if the touch didn't start on the scroll track
+             // General touch handler, ignore if touch is on the scrollbar
             if (e.target !== touchScrollTrack && e.target !== touchScrollThumb) {
                 e.preventDefault();
                 if (e.touches.length > 0) {
-                    let rect = gameArea.getBoundingClientRect();
-                    let touchY = e.touches[0].clientY - rect.top;
+                    let rect = gameArea.getBoundingClientRect(); let touchY = e.touches[0].clientY - rect.top;
                     paddleRightY = touchY - PADDLE_HEIGHT / 2;
-                    paddleRightY = Math.max(0, Math.min(paddleRightY, GAME_HEIGHT - PADDLE_HEIGHT));
-                    // updateThumbPosition(); // Let gameLoop handle sync
+                    if(GAME_HEIGHT && PADDLE_HEIGHT) { paddleRightY = Math.max(0, Math.min(paddleRightY, GAME_HEIGHT - PADDLE_HEIGHT)); }
                 }
             }
         }, { passive: false });
 
-
-         // --- Mobile Touch Scrollbar Control ---
+         // Touch scrollbar handler (Restored)
          touchScrollTrack.addEventListener('touchmove', (e) => {
-             e.preventDefault(); // Always prevent default for scroll track
+             e.preventDefault();
              if (e.touches.length > 0) {
-                 let rect = touchScrollTrack.getBoundingClientRect(); // Use track's rect
-                 let touchY = e.touches[0].clientY - rect.top; // Y relative to track top
-
-                 // Calculate paddle Y based on touch position within the track
-                 // Center the paddle calculation around the touch point
-                 paddleRightY = touchY - (PADDLE_HEIGHT / 2);
-
-                 // Clamp paddle position within game bounds
-                 paddleRightY = Math.max(0, Math.min(paddleRightY, GAME_HEIGHT - PADDLE_HEIGHT));
-
-                // updateThumbPosition(); // Let gameLoop handle sync
+                 let rect = touchScrollTrack.getBoundingClientRect();
+                 let touchY = e.touches[0].clientY - rect.top;
+                 // Map touch Y percentage within track to paddle Y percentage within game height
+                 const touchPercent = Math.max(0, Math.min(touchY / rect.height, 1));
+                 paddleRightY = touchPercent * (GAME_HEIGHT - PADDLE_HEIGHT);
+                 paddleRightY = Math.max(0, Math.min(paddleRightY, GAME_HEIGHT - PADDLE_HEIGHT)); // Clamp
              }
          }, { passive: false });
-         // ------------------------------------
 
-
-        // Combined click handler for message and game area to start/restart
         function handleStartClick() {
              if (!gameRunning && message.style.display !== 'none') {
-                 message.innerHTML = "First 10 points wins!<br>Click or Tap to Play";
-                 resetGame();
+                 message.innerHTML = "First 10 points wins!<br>Click or Tap to Play"; resetGame();
              } else if (!gameRunning && resetTimeoutId !== null) {
-                  clearTimeout(resetTimeoutId);
-                  startNextRound();
+                  clearTimeout(resetTimeoutId); startNextRound();
              }
         }
-
         message.addEventListener('click', handleStartClick);
         gameArea.addEventListener('click', (e) => {
-             if (e.target !== message && e.target !== touchScrollTrack && e.target !== touchScrollThumb) { // Avoid trigger on scrollbar click
+             if (e.target !== message && e.target !== touchScrollTrack && e.target !== touchScrollThumb) {
                  handleStartClick();
              }
         });
 
-
-        // --- Initial Setup ---
-        // Detect touch device (simple check)
-        isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
-        if(isTouchDevice) {
-            touchScrollTrack.style.display = 'block'; // Show scrollbar track
-            // Adjust right paddle position slightly away from scrollbar track for visuals
-             paddleRight.style.right = `${touchScrollTrack.offsetWidth + 10}px`;
-        } else {
-             paddleRight.style.right = `10px`; // Default position if no touch
+        // --- Initialization Functions ---
+        function initializeGameDimensions() {
+             PADDLE_HEIGHT = paddleRight.offsetHeight;
+             THUMB_HEIGHT = touchScrollThumb.offsetHeight; // Make sure to get thumb height
+             BALL_SIZE = ball.offsetWidth;
+             GAME_WIDTH = gameArea.offsetWidth;
+             GAME_HEIGHT = gameArea.offsetHeight;
+             if (!GAME_HEIGHT || !PADDLE_HEIGHT || !THUMB_HEIGHT) {
+                 // This might happen on initial load before styles apply fully, re-check later if needed
+                 // console.warn("Warning: Some element dimensions are zero during init.", {GAME_HEIGHT, PADDLE_HEIGHT, THUMB_HEIGHT});
+             }
         }
 
-        // Set initial variable values
-        paddleLeftY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
-        paddleRightY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
-        // Apply initial visual positions
-        paddleLeft.style.top = `${paddleLeftY}px`;
-        paddleRight.style.top = `${paddleRightY}px`;
-        updateThumbPosition(); // Set initial thumb position
-        resetBall(); // Position ball
+        function initializeGame() {
+            initializeGameDimensions(); // Get dimensions first
 
-        // Resize handling (basic)
+            isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+             if(isTouchDevice) {
+                 document.body.classList.add('touch-device');
+                 // Adjust paddle position based on calculated track width + desired gap
+                 let trackWidth = touchScrollTrack.offsetWidth || 18; // Use default if offsetWidth is 0 initially
+                 paddleRight.style.right = `${trackWidth + PADDLE_SCROLLBAR_GAP}px`;
+             } else {
+                 document.body.classList.remove('touch-device');
+                 paddleRight.style.right = `10px`; // Default if not touch
+             }
+
+            // Set Initial Positions only if dimensions are valid
+            if(GAME_HEIGHT && PADDLE_HEIGHT){
+                paddleLeftY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+                paddleRightY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+                paddleLeft.style.top = `${paddleLeftY}px`;
+                paddleRight.style.top = `${paddleRightY}px`;
+                updateThumbPosition();
+                resetBall(); // Position ball
+            } else {
+                console.error("Cannot initialize paddle positions, dimensions invalid. Retrying...");
+                 // Retry getting dimensions shortly after styles might have applied
+                 setTimeout(initializeGame, 50); // Wait 50ms and retry init
+                 return; // Exit current init attempt
+            }
+        }
+
+        // --- Start Initialization ---
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeGame);
+        } else {
+            initializeGame(); // DOM already loaded
+        }
+
+        // --- Resize handling ---
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                // A robust solution would recalculate GAME_WIDTH/HEIGHT, element sizes,
-                // and potentially reset or pause the game.
-                 // Update constants based on new size?
-                 // GAME_WIDTH = gameArea.offsetWidth;
-                 // GAME_HEIGHT = gameArea.offsetHeight;
-                 // Re-center paddles and ball visually?
+                console.log("Window Resized - Re-initializing dimensions and positions.");
+                // Store previous state if needed
+                let wasRunning = gameRunning;
+                gameRunning = false; // Pause game during resize adjustments
+                clearTimeout(resetTimeoutId); resetTimeoutId = null; // Clear pending resets
+
+                initializeGameDimensions();
+                // Reposition paddles based on new dimensions
+                if(GAME_HEIGHT && PADDLE_HEIGHT){
+                    paddleLeftY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+                    paddleRightY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+                    paddleLeft.style.top = `${paddleLeftY}px`;
+                    paddleRight.style.top = `${paddleRightY}px`;
+                    updateThumbPosition(); // Update thumb too
+                    // Reposition ball in center
+                    if(!wasRunning) { // Only reset ball position if game wasn't running
+                        resetBall();
+                    } else { // If game was running, just center ball visually
+                         ballX = GAME_WIDTH / 2 - BALL_SIZE / 2;
+                         ballY = GAME_HEIGHT / 2 - BALL_SIZE / 2;
+                         ball.style.left = `${ballX}px`;
+                         ball.style.top = `${ballY}px`;
+                         // Optionally restart the loop if it was running
+                         // gameRunning = true;
+                         // requestAnimationFrame(gameLoop);
+                         // Or prompt user to resume
+                         message.innerHTML = "Resized! Click to Resume";
+                         message.style.display = 'block';
+                    }
+                }
             }, 250);
         });
 
