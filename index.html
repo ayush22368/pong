@@ -112,14 +112,14 @@
         let GAME_WIDTH;
         let GAME_HEIGHT;
         const PLAYER_PADDLE_SPEED = 6;
-        const AI_PADDLE_SPEED = 5.1; // AI speed remains moderate
+        const AI_PADDLE_SPEED = 5.1;
         const WINNING_SCORE = 10;
-        // ***** BALL SPEED ADJUSTED *****
-        const INITIAL_BALL_SPEED = 4.8; // Reduced speed for better mobile playability
-        const BALL_SPEED_INCREASE = 1.05;// Gentle increase
+        const INITIAL_BALL_SPEED = 4.8; // Keep starting speed moderate
+        const BALL_SPEED_INCREASE = 1.05;// Gentle increase per hit
+        // ***** MAXIMUM SPEED CAPPED *****
+        const MAX_BALL_SPEED_X_FACTOR = 2.2; // Lower factor = Lower max horizontal speed
+        const MAX_BALL_SPEED_Y_FACTOR = 1.6; // Lower factor = Lower max vertical speed
         // *******************************
-        const MAX_BALL_SPEED_X_FACTOR = 3.2;
-        const MAX_BALL_SPEED_Y_FACTOR = 1.9;
         const POINT_RESET_DELAY = 1000;
         const PADDLE_SCROLLBAR_GAP = 5;
 
@@ -134,10 +134,7 @@
             let angle = Math.random() * Math.PI / 2 - Math.PI / 4;
             ballSpeedX = INITIAL_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
             ballSpeedY = INITIAL_BALL_SPEED * Math.sin(angle);
-            // Ensure minimum vertical speed matches the adjusted initial speed
-             if (Math.abs(ballSpeedY) < 1.0) {
-                 ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 1.0;
-             }
+             if (Math.abs(ballSpeedY) < 1.0) { ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 1.0; }
              if(!gameRunning) { ball.style.left = `${ballX}px`; ball.style.top = `${ballY}px`; }
         }
 
@@ -158,9 +155,8 @@
             scoreLeftDisplay.textContent = scoreLeft; scoreRightDisplay.textContent = scoreRight;
             paddleLeftY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
             paddleRightY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
-            // Clamp initial positions just in case
-            paddleLeftY = Math.max(0, Math.min(paddleLeftY, GAME_HEIGHT - PADDLE_HEIGHT));
-            paddleRightY = Math.max(0, Math.min(paddleRightY, GAME_HEIGHT - PADDLE_HEIGHT));
+            paddleLeftY = clampPaddleY(paddleLeftY);
+            paddleRightY = clampPaddleY(paddleRightY);
             paddleLeft.style.top = `${paddleLeftY}px`;
             paddleRight.style.top = `${paddleRightY}px`;
             updateThumbPosition();
@@ -174,16 +170,14 @@
             if(isTouchDevice && THUMB_HEIGHT && GAME_HEIGHT && PADDLE_HEIGHT) {
                 const trackInnerHeight = touchScrollTrack.offsetHeight - THUMB_HEIGHT;
                 const paddleRange = GAME_HEIGHT - PADDLE_HEIGHT;
-                // Prevent division by zero if paddle is as tall as game area
                 const paddlePercent = paddleRange > 0 ? paddleRightY / paddleRange : 0;
                 const thumbTop = Math.max(0, Math.min(paddlePercent * trackInnerHeight, trackInnerHeight));
                 touchScrollThumb.style.top = `${thumbTop}px`;
             }
         }
 
-        // Clamp paddle Y value helper
         function clampPaddleY(y) {
-             if (!GAME_HEIGHT || !PADDLE_HEIGHT) return y; // Don't clamp if constants unknown
+             if (!GAME_HEIGHT || !PADDLE_HEIGHT) return y;
              return Math.max(0, Math.min(y, GAME_HEIGHT - PADDLE_HEIGHT));
         }
 
@@ -199,27 +193,38 @@
                 ballSpeedX += (Math.random() - 0.5) * 0.1;
             }
 
+            // Calculate MAX speeds based on INITIAL speed and FACTORS
             const maxHorizontalSpeed = INITIAL_BALL_SPEED * MAX_BALL_SPEED_X_FACTOR;
             const maxVerticalSpeed = INITIAL_BALL_SPEED * MAX_BALL_SPEED_Y_FACTOR;
 
             // Paddle Collisions
-            let rightPaddleVisualWidth = paddleRight.offsetWidth || 12; // Use default if offsetWidth is 0
+            let rightPaddleVisualWidth = paddleRight.offsetWidth || 12;
             let rightPaddleEdge = isTouchDevice
                 ? GAME_WIDTH - rightPaddleVisualWidth - PADDLE_SCROLLBAR_GAP
                 : GAME_WIDTH - 10 - rightPaddleVisualWidth;
             let rightPaddleCollisionBuffer = rightPaddleEdge - BALL_SIZE * 1.5;
 
+            // Left Paddle Hit
             if (ballX <= 20 + BALL_SIZE / 2 && ballX > 10 && ballY + BALL_SIZE > paddleLeftY && ballY < paddleLeftY + PADDLE_HEIGHT) {
-                ballX = 20 + BALL_SIZE / 2; let nextSpeedX = ballSpeedX * -BALL_SPEED_INCREASE;
-                if(Math.abs(nextSpeedX) > maxHorizontalSpeed) { nextSpeedX = Math.sign(nextSpeedX) * maxHorizontalSpeed; } ballSpeedX = nextSpeedX;
-                let deltaY = ballY + BALL_SIZE / 2 - (paddleLeftY + PADDLE_HEIGHT / 2); ballSpeedY = deltaY * 0.16;
-                ballSpeedY = Math.max(-maxVerticalSpeed, Math.min(ballSpeedY, maxVerticalSpeed));
-            } else if (ballX >= rightPaddleCollisionBuffer && ballX < rightPaddleEdge && ballY + BALL_SIZE > paddleRightY && ballY < paddleRightY + PADDLE_HEIGHT) {
+                ballX = 20 + BALL_SIZE / 2;
+                let nextSpeedX = ballSpeedX * -BALL_SPEED_INCREASE;
+                // ** Apply strict MAX speed cap **
+                ballSpeedX = Math.max(-maxHorizontalSpeed, Math.min(nextSpeedX, maxHorizontalSpeed));
+
+                let deltaY = ballY + BALL_SIZE / 2 - (paddleLeftY + PADDLE_HEIGHT / 2);
+                ballSpeedY = deltaY * 0.16;
+                ballSpeedY = Math.max(-maxVerticalSpeed, Math.min(ballSpeedY, maxVerticalSpeed)); // Cap vertical
+            }
+            // Right Paddle Hit
+            else if (ballX >= rightPaddleCollisionBuffer && ballX < rightPaddleEdge && ballY + BALL_SIZE > paddleRightY && ballY < paddleRightY + PADDLE_HEIGHT) {
                 ballX = rightPaddleCollisionBuffer;
                 let nextSpeedX = ballSpeedX * -BALL_SPEED_INCREASE;
-                if(Math.abs(nextSpeedX) > maxHorizontalSpeed) { nextSpeedX = Math.sign(nextSpeedX) * maxHorizontalSpeed; } ballSpeedX = nextSpeedX;
-                let deltaY = ballY + BALL_SIZE / 2 - (paddleRightY + PADDLE_HEIGHT / 2); ballSpeedY = deltaY * 0.16;
-                ballSpeedY = Math.max(-maxVerticalSpeed, Math.min(ballSpeedY, maxVerticalSpeed));
+                 // ** Apply strict MAX speed cap **
+                 ballSpeedX = Math.max(-maxHorizontalSpeed, Math.min(nextSpeedX, maxHorizontalSpeed));
+
+                let deltaY = ballY + BALL_SIZE / 2 - (paddleRightY + PADDLE_HEIGHT / 2);
+                ballSpeedY = deltaY * 0.16;
+                ballSpeedY = Math.max(-maxVerticalSpeed, Math.min(ballSpeedY, maxVerticalSpeed)); // Cap vertical
             }
 
             // Scoring
@@ -230,14 +235,14 @@
             if (pointScored) {
                 gameRunning = false; flashScore(scorerElement);
                 if (!checkWin()) { resetTimeoutId = setTimeout(startNextRound, POINT_RESET_DELAY); }
-                return; // Exit loop iteration after scoring
+                return;
             }
 
             // Move AI Paddle
             let targetPaddleLeftY = ballY - PADDLE_HEIGHT / 2;
             let dy = targetPaddleLeftY - paddleLeftY;
             if (Math.abs(dy) > AI_PADDLE_SPEED) { paddleLeftY += Math.sign(dy) * AI_PADDLE_SPEED; } else { paddleLeftY += dy; }
-            paddleLeftY = clampPaddleY(paddleLeftY); // Use clamp helper
+            paddleLeftY = clampPaddleY(paddleLeftY);
 
             // Update DOM Positions
             ball.style.left = `${ballX}px`; ball.style.top = `${ballY}px`;
@@ -259,7 +264,7 @@
         gameArea.addEventListener('mousemove', (e) => {
              if(!isTouchDevice) {
                 let rect = gameArea.getBoundingClientRect(); let mouseY = e.clientY - rect.top;
-                paddleRightY = clampPaddleY(mouseY - PADDLE_HEIGHT / 2); // Clamp directly
+                paddleRightY = clampPaddleY(mouseY - PADDLE_HEIGHT / 2);
              }
         });
 
@@ -268,7 +273,7 @@
                 e.preventDefault();
                 if (e.touches.length > 0) {
                     let rect = gameArea.getBoundingClientRect(); let touchY = e.touches[0].clientY - rect.top;
-                    paddleRightY = clampPaddleY(touchY - PADDLE_HEIGHT / 2); // Clamp directly
+                    paddleRightY = clampPaddleY(touchY - PADDLE_HEIGHT / 2);
                 }
             }
         }, { passive: false });
@@ -279,10 +284,9 @@
                  let rect = touchScrollTrack.getBoundingClientRect();
                  let touchY = e.touches[0].clientY - rect.top;
                  const touchPercent = Math.max(0, Math.min(touchY / rect.height, 1));
-                  // Make sure GAME_HEIGHT and PADDLE_HEIGHT are available before calculating
                  if(GAME_HEIGHT && PADDLE_HEIGHT){
                     paddleRightY = touchPercent * (GAME_HEIGHT - PADDLE_HEIGHT);
-                    paddleRightY = clampPaddleY(paddleRightY); // Clamp just in case
+                    paddleRightY = clampPaddleY(paddleRightY);
                  }
              }
          }, { passive: false });
@@ -308,13 +312,19 @@
              BALL_SIZE = ball.offsetWidth;
              GAME_WIDTH = gameArea.offsetWidth;
              GAME_HEIGHT = gameArea.offsetHeight;
-             if (!GAME_HEIGHT || !PADDLE_HEIGHT || !BALL_SIZE) { // Check BALL_SIZE too
-                 // console.warn("Warning: Element dimensions are zero during init.", {GAME_HEIGHT, PADDLE_HEIGHT, BALL_SIZE});
+             if (!GAME_HEIGHT || !PADDLE_HEIGHT || !BALL_SIZE || !GAME_WIDTH) { // Check GAME_WIDTH too
+                  console.warn("Warning: Essential dimensions might be zero during init.");
+                  return false; // Indicate failure
              }
+             return true; // Indicate success
         }
 
         function initializeGame() {
-            initializeGameDimensions();
+            if (!initializeGameDimensions()) { // Try to get dimensions
+                 console.error("Failed to get initial dimensions. Retrying...");
+                 setTimeout(initializeGame, 100); // Retry after delay
+                 return; // Exit current attempt
+            }
 
             isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
@@ -327,27 +337,22 @@
                  paddleRight.style.right = `10px`;
              }
 
-            if(GAME_HEIGHT && PADDLE_HEIGHT){
-                paddleLeftY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
-                paddleRightY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
-                paddleLeftY = clampPaddleY(paddleLeftY); // Clamp initial
-                paddleRightY = clampPaddleY(paddleRightY); // Clamp initial
-                paddleLeft.style.top = `${paddleLeftY}px`;
-                paddleRight.style.top = `${paddleRightY}px`;
-                updateThumbPosition();
-                resetBall();
-            } else {
-                console.error("Cannot initialize game - dimensions invalid. Retrying...");
-                 setTimeout(initializeGame, 100); // Wait a bit longer and retry
-                 return;
-            }
+            // Set Initial Positions
+            paddleLeftY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+            paddleRightY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+            paddleLeftY = clampPaddleY(paddleLeftY);
+            paddleRightY = clampPaddleY(paddleRightY);
+            paddleLeft.style.top = `${paddleLeftY}px`;
+            paddleRight.style.top = `${paddleRightY}px`;
+            updateThumbPosition();
+            resetBall(); // Position ball now that dimensions are confirmed
         }
 
         // --- Start Initialization ---
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initializeGame);
         } else {
-            initializeGame(); // DOM already loaded
+            initializeGame();
         }
 
         // --- Resize handling ---
@@ -358,22 +363,30 @@
                 let wasRunning = gameRunning; gameRunning = false;
                 clearTimeout(resetTimeoutId); resetTimeoutId = null;
                 console.log("Window Resized - Re-initializing.");
-                initializeGameDimensions();
-                if(GAME_HEIGHT && PADDLE_HEIGHT){
+
+                if (initializeGameDimensions()) { // Only proceed if dimensions are valid
+                    // Reposition paddles based on new dimensions
                     paddleLeftY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
                     paddleRightY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
                     paddleLeftY = clampPaddleY(paddleLeftY);
                     paddleRightY = clampPaddleY(paddleRightY);
                     paddleLeft.style.top = `${paddleLeftY}px`;
                     paddleRight.style.top = `${paddleRightY}px`;
-                    updateThumbPosition();
-                    if(!wasRunning) { resetBall(); }
-                    else {
+                    updateThumbPosition(); // Update thumb too
+
+                    // Reposition ball in center
+                    if(!wasRunning) { resetBall(); } // Reset fully if wasn't running
+                    else { // If game was running, just center ball visually and prompt
                          ballX = GAME_WIDTH / 2 - BALL_SIZE / 2; ballY = GAME_HEIGHT / 2 - BALL_SIZE / 2;
+                         ballSpeedX = 0; ballSpeedY = 0; // Stop ball movement
                          ball.style.left = `${ballX}px`; ball.style.top = `${ballY}px`;
                          message.innerHTML = "Resized! Click to Resume"; message.style.display = 'block';
                     }
+                } else {
+                     console.error("Resize failed - Could not get valid dimensions.");
+                     // Optionally show an error message to the user
                 }
+
             }, 250);
         });
 
